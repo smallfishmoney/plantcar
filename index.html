@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱 綠色小英雄：植物淨化大冒險 🍃</title>
+    <!-- 引入 Tailwind CSS 以實現快速響應式與活潑設計 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自訂字體與全域平滑滾動 */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Nunito', 'Microsoft JhengHei', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* 活潑的標題彈跳動畫 */
+        @keyframes bounce-fun {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-bounce-fun {
+            animation: bounce-fun 2s infinite ease-in-out;
+        }
+
+        /* 背景漂浮葉片動畫 */
+        .leaf {
+            position: absolute;
+            top: -10%;
+            user-select: none;
+            z-index: 0;
+            opacity: 0.6;
+            animation: float-down linear infinite;
+        }
+
+        @keyframes float-down {
+            0% {
+                transform: translateY(-10vh) rotate(0deg) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* 卡片懸浮發光效果 */
+        .game-card {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 10;
+            position: relative;
+        }
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-blue-200 via-green-100 to-green-300 min-h-screen relative flex flex-col items-center justify-center p-4 sm:p-8">
+
+    <!-- 動態背景葉片容器 -->
+    <div id="leaves-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+
+    <!-- 主要內容區 -->
+    <main class="max-w-5xl w-full z-10 flex flex-col items-center">
+        
+        <!-- 標題區 -->
+        <header class="text-center mb-12">
+            <div class="inline-block bg-white/80 backdrop-blur-sm rounded-full px-6 py-2 mb-4 text-green-700 font-bold shadow-sm border-2 border-green-200 animate-bounce-fun">
+                ✨ 歡迎來到綠色植物基地 ✨
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black text-green-800 drop-shadow-md mb-4 tracking-wide">
+                🌱 植物淨化大冒險 🍃
+            </h1>
+            <p class="text-lg md:text-2xl text-green-700 font-bold drop-shadow-sm">
+                一起來探索植物的神奇力量，打敗壞空氣怪獸吧！
+            </p>
+        </header>
+
+        <!-- 遊戲連結卡片網格 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+            
+            <!-- 連結 1：室內環境植物推薦系統 -->
+            <a href="plant.html" class="game-card block bg-white rounded-3xl p-6 border-4 border-yellow-300 text-center overflow-hidden group cursor-pointer">
+                <div class="bg-yellow-100 rounded-2xl h-40 flex items-center justify-center mb-6 group-hover:bg-yellow-200 transition-colors">
+                    <span class="text-7xl group-hover:scale-125 transition-transform duration-300">🪴</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">室內植物小管家</h2>
+                <p class="text-gray-600 font-bold mb-4">
+                    幫你找出最適合家裡的「空氣淨化小精靈」！點我來做個測驗吧～
+                </p>
+                <div class="bg-yellow-400 text-yellow-900 font-black py-3 px-6 rounded-full inline-block w-full group-hover:bg-yellow-500 shadow-md">
+                    馬上尋找 🔍
+                </div>
+            </a>
+
+            <!-- 連結 2：植物防衛軍 -->
+            <a href="植物防衛軍.html" class="game-card block bg-white rounded-3xl p-6 border-4 border-red-300 text-center overflow-hidden group cursor-pointer">
+                <div class="bg-red-100 rounded-2xl h-40 flex items-center justify-center mb-6 group-hover:bg-red-200 transition-colors relative">
+                    <span class="text-7xl group-hover:scale-125 transition-transform duration-300">🦸‍♂️🌵</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">植物防衛軍</h2>
+                <p class="text-gray-600 font-bold mb-4">
+                    空氣怪獸來襲啦！快來指揮你的植物戰士，保護我們的家園！
+                </p>
+                <div class="bg-red-400 text-white font-black py-3 px-6 rounded-full inline-block w-full group-hover:bg-red-500 shadow-md">
+                    開始戰鬥 ⚔️
+                </div>
+            </a>
+
+            <!-- 連結 3：植物淨化遊戲 -->
+            <a href="3植物淨化遊戲.html" class="game-card block bg-white rounded-3xl p-6 border-4 border-blue-300 text-center overflow-hidden group cursor-pointer">
+                <div class="bg-blue-100 rounded-2xl h-40 flex items-center justify-center mb-6 group-hover:bg-blue-200 transition-colors">
+                    <span class="text-7xl group-hover:scale-125 transition-transform duration-300">🌬️✨</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">淨化大挑戰</h2>
+                <p class="text-gray-600 font-bold mb-4">
+                    動動手指玩遊戲，看看植物們是怎麼把髒髒的空氣變清新的！
+                </p>
+                <div class="bg-blue-400 text-white font-black py-3 px-6 rounded-full inline-block w-full group-hover:bg-blue-500 shadow-md">
+                    挑戰開始 🎮
+                </div>
+            </a>
+
+        </div>
+
+    </main>
+
+    <!-- 底部版權/裝飾 -->
+    <footer class="mt-16 text-green-800 font-bold z-10 text-center">
+        <p>準備好成為環保小尖兵了嗎？點擊上面的卡片開始吧！ 🌍💚</p>
+    </footer>
+
+    <!-- 動態生成漂浮葉片的腳本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('leaves-container');
+            const leafSymbols = ['🍃', '🌿', '🌱', '☘️'];
+            const numberOfLeaves = 15; // 畫面上的葉片數量
+
+            for (let i = 0; i < numberOfLeaves; i++) {
+                const leaf = document.createElement('div');
+                leaf.classList.add('leaf');
+                
+                // 隨機選擇葉片圖案
+                leaf.innerText = leafSymbols[Math.floor(Math.random() * leafSymbols.length)];
+                
+                // 隨機大小 (20px 到 40px)
+                const size = Math.random() * 20 + 20;
+                leaf.style.fontSize = `${size}px`;
+                
+                // 隨機水平位置 (0% 到 100%)
+                leaf.style.left = `${Math.random() * 100}%`;
+                
+                // 隨機動畫時間 (8秒 到 18秒，營造不同下落速度)
+                const duration = Math.random() * 10 + 8;
+                leaf.style.animationDuration = `${duration}s`;
+                
+                // 隨機動畫延遲 (讓葉片不要同時掉下來)
+                const delay = Math.random() * 10;
+                leaf.style.animationDelay = `-${delay}s`; // 使用負值可以讓一開始就有葉片在畫面上
+
+                container.appendChild(leaf);
+            }
+        });
+    </script>
+</body>
+</html>
