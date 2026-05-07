@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吸碳大法：植物超人拯救地球</title>
+    <style>
+        :root {
+            --green: #2d6a4f;
+            --light-green: #d8f3dc;
+            --red: #c9184a;
+            --yellow: #ffb703;
+        }
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background: #f0f4f0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; margin: 0; overflow: hidden;
+        }
+        #game-wrapper {
+            width: 460px; background: white; padding: 25px; border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1); text-align: center;
+            border: 4px solid var(--green); position: relative;
+        }
+        /* 數值欄位 */
+        .stats { display: flex; justify-content: space-between; font-weight: 800; color: var(--green); margin-bottom: 10px; }
+        .hp-bg { width: 100%; height: 24px; background: #eee; border-radius: 12px; border: 2px solid #333; overflow: hidden; margin-bottom: 20px; }
+        #hp-bar { width: 100%; height: 100%; background: linear-gradient(90deg, var(--red), #52b788); transition: width 0.3s ease; }
+
+        /* 情境卡片 */
+        #scene-card {
+            background: var(--light-green); border-radius: 20px; padding: 25px; min-height: 140px;
+            margin-bottom: 25px; border: 2px solid var(--green);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        #icon { font-size: 50px; margin-bottom: 10px; }
+        #text { font-size: 1.15em; font-weight: bold; color: #1b4332; line-height: 1.5; }
+
+        /* 植物按鈕 */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn {
+            background: white; border: 2px solid var(--green); padding: 12px; border-radius: 15px;
+            cursor: pointer; font-weight: bold; font-size: 1em; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .btn:hover:not(:disabled) { background: var(--green); color: white; transform: translateY(-3px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn span { font-size: 22px; margin-bottom: 5px; }
+
+        /* 特效層 */
+        #fx {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 3em; font-weight: 900; pointer-events: none; opacity: 0; z-index: 100;
+        }
+        .pop-fx { animation: popUp 0.8s ease-out forwards; }
+        @keyframes popUp {
+            0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+    <div class="stats">
+        <span>📅 第 <span id="day-txt">1</span> / 10 天</span>
+        <span>🌿 分數: <span id="score-txt">0</span></span>
+    </div>
+    <div class="hp-bg"><div id="hp-bar"></div></div>
+
+    <div id="scene-card">
+        <div id="icon">🌍</div>
+        <div id="text">點擊下方按鈕開始任務！<br>守護地球空氣直到第 10 天！</div>
+    </div>
+
+    <div class="grid">
+        <button class="btn" onclick="handleInput('虎尾蘭')"><span>🐍</span>虎尾蘭</button>
+        <button class="btn" onclick="handleInput('波士頓腎蕨')"><span>🌿</span>波士頓腎蕨</button>
+        <button class="btn" onclick="handleInput('黃金葛')"><span>🌱</span>黃金葛</button>
+        <button class="btn" onclick="handleInput('常春藤')"><span>🍀</span>常春藤</button>
+        <button class="btn" onclick="handleInput('吊蘭')"><span>🕸️</span>吊蘭</button>
+        <button class="btn" style="border-color:#aaa" onclick="handleInput('skip')"><span>🔄</span>切換場景</button>
+    </div>
+    <div id="fx"></div>
+</div>
+
+<script>
+    // 嚴謹題庫（共 23 題，完全對應研究說明書）
+    const questions = [
+        { q: "剛刷完油漆，甲醛濃度極高，誰是移除首選？", a: ["虎尾蘭"], icon: "🎨" },
+        { q: "客廳有人在燒香，產生大量 PM2.5 與煙霧異味。", a: ["波士頓腎蕨"], icon: "🕯️" },
+        { q: "深夜臥室熄燈，需要具備 CAM 代謝能吸 CO2 的植物。", a: ["虎尾蘭"], icon: "🛌" },
+        { q: "辦公室下午人流達到高峰，二氧化碳濃度飆升。", a: ["黃金葛"], icon: "📈" },
+        { q: "噴了過多化學香水，室內充斥著芳香劑異味。", a: ["波士頓腎蕨", "常春藤"], icon: "🧴" },
+        { q: "新裝潢空間，除了虎尾蘭，誰也是甲醛移除好手？", a: ["吊蘭", "常春藤"], icon: "🏠" },
+        { q: "廚房炸完排骨後的油煙異味，誰處理最快？", a: ["波士頓腎蕨"], icon: "🍳" },
+        { q: "走廊燈光昏暗且通風差，誰能維持穩定代謝？", a: ["黃金葛"], icon: "☁️" },
+        { q: "新買的夾板家具釋放出刺鼻的膠水味（甲醛）。", a: ["虎尾蘭", "常春藤"], icon: "📦" },
+        { q: "人潮進出頻繁的玄關，污染濃度波動劇烈時誰最穩定？", a: ["黃金葛"], icon: "🚪" },
+        { q: "密閉空間內點燃香薰精油，氣味過於濃郁時。", a: ["波士頓腎蕨", "常春藤"], icon: "🧘" },
+        { q: "研究指出，哪種植物在污染高峰期展現最強穩定性？", a: ["黃金葛"], icon: "📊" },
+        { q: "針對建材污染（如皮革、地毯黏著劑）的首選組合？", a: ["虎尾蘭", "常春藤"], icon: "🧵" },
+        { q: "在光週期實驗中，誰在光照充足時氣孔開啟效率最高？", a: ["黃金葛", "波士頓腎蕨"], icon: "☀️" },
+        { q: "除了虎尾蘭，哪種植物對甲醛的移除率居於第二梯隊？", a: ["吊蘭"], icon: "🥈" },
+        { q: "學校教室下課時間，室內 CO2 濃度極高時。", a: ["黃金葛"], icon: "🏫" },
+        { q: "長輩在密閉房間焚香，誰對此類異味移除最具針對性？", a: ["波士頓腎蕨"], icon: "⛩️" },
+        { q: "夜晚想透過植物維持含氧感，且不釋放 CO2。", a: ["虎尾蘭"], icon: "🌙" },
+        { q: "新購置的皮革沙發散發化學氣味。", a: ["常春藤", "虎尾蘭"], icon: "🛋️" },
+        { q: "低光照、通風不良的地下室，哪種植物生命力與淨化力並存？", a: ["黃金葛"], icon: "🌑" },
+        { q: "這份研究的主要對象『植物超人』不包含以下哪種？", a: ["skip"], icon: "🚫", note: "（請點切換場景避開陷阱）" },
+        { q: "研究結論：人流多、異味重的環境，建議擺放？", a: ["波士頓腎蕨", "黃金葛"], icon: "🏢" },
+        { q: "室內空間若想建立動態過濾系統，基礎植物是？", a: ["黃金葛"], icon: "🔄" }
+    ];
+
+    let health = 100, score = 0, day = 1, isPlaying = false, currentQ = -1, gameLoop;
+
+    function nextQuestion() {
+        let prev = currentQ;
+        while(currentQ === prev) currentQ = Math.floor(Math.random() * questions.length);
+        document.getElementById('icon').innerText = questions[currentQ].icon;
+        document.getElementById('text').innerText = questions[currentQ].q;
+    }
+
+    function handleInput(choice) {
+        if (!isPlaying) { start(); return; }
+        
+        const fx = document.getElementById('fx');
+        fx.classList.remove('pop-fx'); void fx.offsetWidth;
+
+        if (choice === 'skip') {
+            health -= 8;
+            fx.innerText = "🌀 跳過"; fx.style.color = varColor('--yellow');
+            nextQuestion();
+        } else if (questions[currentQ].a.includes(choice)) {
+            score += 25; health = Math.min(100, health + 12);
+            fx.innerText = "✨ 淨化成功"; fx.style.color = "#4caf50";
+            if (score >= day * 150) {
+                day++;
+                if (day > 10) win();
+            }
+            nextQuestion();
+        } else {
+            health -= 20;
+            fx.innerText = "⚠️ 效果不佳"; fx.style.color = varColor('--red');
+        }
+        fx.classList.add('pop-fx');
+        updateUI();
+    }
+
+    function start() {
+        isPlaying = true;
+        nextQuestion();
+        gameLoop = setInterval(() => {
+            health -= (0.2 + day * 0.15); // 難度隨天數增加
+            updateUI();
+            if (health <= 0) gameOver();
+        }, 100);
+    }
+
+    function updateUI() {
+        document.getElementById('hp-bar').style.width = Math.max(0, health) + "%";
+        document.getElementById('score-txt').innerText = score;
+        document.getElementById('day-txt').innerText = day;
+        if (health < 30) document.getElementById('hp-bar').style.filter = "hue-rotate(-50deg) saturate(2)";
+        else document.getElementById('hp-bar').style.filter = "none";
+    }
+
+    function gameOver() {
+        clearInterval(gameLoop);
+        isPlaying = false;
+        document.getElementById('scene-card').style.background = "#ffd7d7";
+        document.getElementById('icon').innerText = "😷";
+        document.getElementById('text').innerHTML = `<b style="color:red">環境崩壞！</b><br>你在第 ${day} 天失敗了...<br>最終積分：${score}<br><button onclick="location.reload()" style="margin-top:10px; padding:5px 15px">重新挑戰</button>`;
+        disableButtons();
+    }
+
+    function win() {
+        clearInterval(gameLoop);
+        isPlaying = false;
+        document.getElementById('scene-card').style.background = "#d8f3dc";
+        document.getElementById('icon').innerText = "🏆";
+        document.getElementById('text').innerHTML = `<b style="color:green">拯救地球成功！</b><br>你完成了 10 天的淨化任務！<br>你是真正的植物超人專家！<br>最終積分：${score}<br><button onclick="location.reload()" style="margin-top:10px; padding:5px 15px">再次挑戰</button>`;
+        disableButtons();
+    }
+
+    function disableButtons() {
+        document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+    }
+
+    function varColor(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+</script>
+
+</body>
+</html>
