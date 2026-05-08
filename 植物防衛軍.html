@@ -108,16 +108,16 @@
             <canvas id="c"></canvas>
             <div id="overlay">
                 <h1 id="m-title" style="color:var(--green); font-size: 3.5em; margin: 0;">植物防衛軍</h1>
-                <p id="m-desc" style="color:#aaa; font-size: 1.2em; margin: 20px 0 40px 0;">守護環境到 3000 分即可獲勝！</p>
+                <p id="m-desc" style="color:#aaa; font-size: 1.2em; margin: 20px 0 40px 0;">守護環境到 1500 分即可獲勝！</p>
                 <button class="btn-start" onclick="init()">出發守護</button>
             </div>
         </div>
 
         <div id="selector">
-            <div class="slot active" onclick="setP(0)"><span>🐍</span><label>虎尾蘭</label></div>
-            <div class="slot" onclick="setP(1)"><span>🕸️</span><label>吊蘭</label></div>
+            <div class="slot active" onclick="setP(0)"><span>🪴</span><label>虎尾蘭</label></div>
+            <div class="slot" onclick="setP(1)"><span>🌿</span><label>吊蘭</label></div>
             <div class="slot" onclick="setP(2)"><span>🍀</span><label>常春藤</label></div>
-            <div class="slot" onclick="setP(3)"><span>🌿</span><label>腎蕨</label></div>
+            <div class="slot" onclick="setP(3)"><span>🌾</span><label>腎蕨</label></div>
             <div class="slot" onclick="setP(4)"><span>🌱</span><label>黃金葛</label></div>
         </div>
     </div>
@@ -129,8 +129,8 @@
             <div id="house" class="house-visual">🏠</div>
         </div>
         <div id="garden" class="garden-area"></div>
-        <div id="status-tag" style="background: var(--green); padding: 10px 30px; border-radius: 50px; font-weight: bold;">空氣超清新</div>
-        <p style="font-size: 12px; color: #777;">等級越高，家園越漂亮！</p>
+        <div id="status-tag" style="background: var(--green); padding: 10px 30px; border-radius: 50px; font-weight: bold;">空氣狀態</div>
+        <p style="font-size: 12px; color: #777;">血量減少房子會變灰，成功淨化會回血！</p>
     </div>
 </div>
 
@@ -142,36 +142,36 @@
     const glowEl = document.getElementById('glow');
     const gardenEl = document.getElementById('garden');
     const scoreBar = document.getElementById('progress-bar');
+    const statusTag = document.getElementById('status-tag');
     
     canvas.width = 400; canvas.height = 500;
 
     const plants = [
-        { emo: "🐍", tags: ["甲醛", "油漆", "地毯", "家具", "深夜CO2"] },
-        { emo: "🕸️", tags: ["甲醛"] },
+        { emo: "🪴", tags: ["甲醛", "油漆", "地毯", "家具", "深夜CO2"] },
+        { emo: "🌿", tags: ["甲醛"] },
         { emo: "🍀", tags: ["甲醛", "皮味", "香水", "香薰", "黏著劑"] },
-        { emo: "🌿", tags: ["燒香", "拜拜", "煙霧", "異味", "油煙", "精油"] },
+        { emo: "🌾", tags: ["燒香", "拜拜", "煙霧", "異味", "油煙", "精油"] },
         { emo: "🌱", tags: ["高峰CO2", "悶熱", "人多", "低光", "穩定淨化"] }
     ];
 
     const pool = [
-        { t: "油漆臭味", type: "甲醛", hint: "🐍🍀🕸️" },
-        { t: "客廳燒香", type: "燒香", hint: "🌿" },
-        { t: "睡覺悶氣", type: "深夜CO2", hint: "🐍" },
+        { t: "油漆臭味", type: "甲醛", hint: "🪴🍀🌿" },
+        { t: "客廳燒香", type: "燒香", hint: "🌾" },
+        { t: "睡覺悶氣", type: "深夜CO2", hint: "🪴" },
         { t: "好多人喔", type: "高峰CO2", hint: "🌱" },
-        { t: "新買的桌子", type: "甲醛", hint: "🐍🍀🕸️" },
+        { t: "新買的桌子", type: "甲醛", hint: "🪴🍀🌿" },
         { t: "香水噴太多", type: "香水", hint: "🍀" },
-        { t: "媽媽炒菜煙", type: "油煙", hint: "🌿" },
-        { t: "新地毯味道", type: "黏著劑", hint: "🐍🍀" },
-        { t: "蚊香的味道", type: "煙霧", hint: "🌿" },
+        { t: "媽媽炒菜煙", type: "油煙", hint: "🌾" },
+        { t: "新地毯味道", type: "黏著劑", hint: "🪴🍀" },
+        { t: "蚊香的味道", type: "煙霧", hint: "🌾" },
         { t: "新皮包味道", type: "皮味", hint: "🍀" },
-        { t: "廁所芳香劑", type: "精油", hint: "🌿" }
+        { t: "廁所芳香劑", type: "精油", hint: "🌾" }
     ];
 
     let hp = 200, score = 0, curP = 0, pX = 175, state = 'OFF';
     let currentTask = null;
     let floaters = [], rafId = null;
 
-    // 控制
     window.addEventListener('keydown', e => {
         if(e.key >= '1' && e.key <= '5') setP(e.key - 1);
         if(e.key === 'ArrowLeft') pX = Math.max(0, pX - 60);
@@ -201,15 +201,13 @@
         currentTask = {
             x: Math.random() * 240 + 80, y: -80,
             txt: item.t, type: item.type, hint: item.hint,
-            speed: 1.5 + (score / 2000)
+            speed: 1.5 + (score / 1500)
         };
     }
 
     function update() {
         if(state !== 'ON') return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // 背景微光
         ctx.fillStyle = "#050505"; ctx.fillRect(0,0,400,500);
 
         if (!currentTask) spawnNext();
@@ -220,28 +218,22 @@
         ctx.fillStyle = varColor('--green');
         ctx.fillRect(pX, canvas.height - 20, 60, 12);
 
-        // 題目與圖示 (解決重疊的核心代碼)
         if (currentTask) {
             currentTask.y += currentTask.speed;
-
-            // 1. 繪製文字底框 (防止跟圓球重疊)
             const boxW = 140, boxH = 40;
             ctx.fillStyle = "rgba(255,255,255,0.9)";
             ctx.beginPath();
             ctx.roundRect(currentTask.x - boxW/2, currentTask.y - 75, boxW, boxH, 10);
             ctx.fill();
 
-            // 2. 繪製題目文字
             ctx.fillStyle = "#000";
             ctx.font = "bold 20px 'Microsoft JhengHei'";
             ctx.textAlign = "center";
             ctx.fillText(currentTask.txt, currentTask.x, currentTask.y - 48);
 
-            // 3. 繪製污染物圖示 (圓球) 在文字下方
             ctx.fillStyle = varColor('--red');
             ctx.beginPath(); ctx.arc(currentTask.x, currentTask.y - 15, 12, 0, Math.PI*2); ctx.fill();
 
-            // 4. 繪製提示 (在圓球下方)
             ctx.fillStyle = varColor('--sky');
             ctx.font = "bold 18px Arial";
             ctx.fillText("💡提示: " + currentTask.hint, currentTask.x, currentTask.y + 20);
@@ -250,7 +242,9 @@
             if (currentTask.y > canvas.height - 85 && currentTask.x > pX - 30 && currentTask.x < pX + 90) {
                 if (plants[curP].tags.includes(currentTask.type)) {
                     score += 100;
-                    addFloater(currentTask.x, currentTask.y, "✨ 成功淨化!", varColor('--green'));
+                    // 回血機制：得分時加 25 血，上限 200
+                    hp = Math.min(200, hp + 25);
+                    addFloater(currentTask.x, currentTask.y, "✨ 成功淨化! HP+25", varColor('--green'));
                 } else {
                     hp -= 25; flashRed();
                     addFloater(currentTask.x, currentTask.y, "❌ 選錯植物了!", varColor('--red'));
@@ -262,7 +256,6 @@
             }
         }
 
-        // 浮動文字
         for(let i=floaters.length-1; i>=0; i--) {
             let f = floaters[i];
             f.y -= 1.5; f.life -= 0.02;
@@ -274,11 +267,10 @@
 
         updateUI();
 
-        // 破關與失敗判斷
         if(hp <= 0) {
-            endGame("⛽ 需要再加油！", "空氣變得很糟糕，我們再試一次吧！", varColor('--red'));
-        } else if(score >= 3000) {
-            endGame("🏆 守護大成功！", "恭喜你！你創造了完美的森林家園！", varColor('--green'));
+            endGame("⛽ 需要再加油！", "空氣變得很糟糕，家園枯萎了...", varColor('--red'));
+        } else if(score >= 1500) {
+            endGame("🏆 守護大成功！", "恭喜你！家園空氣清新無比！", varColor('--green'));
         } else {
             rafId = requestAnimationFrame(update);
         }
@@ -288,24 +280,29 @@
         document.getElementById('hp-txt').innerText = hp;
         document.getElementById('score-txt').innerText = score;
         
-        // 進度條
-        const progress = (score / 3000) * 100;
+        const progress = (score / 1500) * 100;
         scoreBar.style.width = `${progress}%`;
 
-        // 房子視覺升級
-        const level = Math.floor(score / 500);
+        const level = Math.floor(score / 300);
         const houseTypes = ["🏠", "🏡", "🏘️", "🏩", "🏢", "🏰", "👑"];
         houseEl.innerText = houseTypes[Math.min(level, 6)];
         
-        // 燈光與灰度控制
+        // 房屋變灰/彩色控制：grayscale 數值隨血量降低而增加
+        // 當 HP=200 時 grayscale 為 0% (彩色)
+        // 當 HP=0 時 grayscale 為 100% (灰階)
+        const grayVal = 100 - (hp / 2);
+        const brightVal = 50 + (hp / 4);
+        houseEl.style.filter = `grayscale(${grayVal}%) brightness(${brightVal}%)`;
+        
         const isBad = hp < 80;
         glowEl.style.background = isBad ? varColor('--red') : varColor('--green');
         glowEl.style.opacity = 0.1 + (hp/200)*0.4;
-        houseEl.style.filter = `grayscale(${100 - (hp/2)}) brightness(${50 + (hp/4)}%)`;
+        
+        statusTag.innerText = isBad ? "空氣糟糕" : "空氣超清新";
+        statusTag.style.background = isBad ? varColor('--red') : varColor('--green');
 
-        // 花園裝飾
         let deco = "";
-        const decoCount = Math.floor(score / 300);
+        const decoCount = Math.floor(score / 200);
         const items = ["🌻", "🌳", "🌸", "🦋", "🌷", "🌲", "🍀", "🐦"];
         for(let i=0; i<decoCount; i++) deco += items[i % items.length];
         gardenEl.innerText = deco;
